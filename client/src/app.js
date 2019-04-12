@@ -1,4 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
+// import 'taro-ui/dist/style/index.scss'
 import Index from './pages/index'
 
 import './app.scss'
@@ -14,7 +15,11 @@ class App extends Component {
 
   config = {
     pages: [
-      'pages/index/index'
+      'pages/index/index',
+      'pages/setting/index',
+      'pages/write/index',
+      'pages/password/index',
+      'pages/detail/index',
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -37,7 +42,7 @@ class App extends Component {
 
   componentDidCatchError () {}
 
-  // 在 App 类中的 render() 函数没有实际作用
+  // 在 App 类中的 render() 
   // 请勿修改此函数
   render () {
     return (

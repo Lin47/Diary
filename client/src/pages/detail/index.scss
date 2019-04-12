@@ -1,0 +1,24 @@
+.detail-toolbar{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.detail-toolbar text{
+  margin: 0 10px;
+}
+.test-h{
+  width: 702px;
+  padding: 24px;
+}
+.demo-text-1{
+  background: red;
+  height: 500px;
+}
+.demo-text-2{
+  background: blue;
+  height: 500px;
+}
+.demo-text-3{
+  background: green;
+  height: 500px;
+}

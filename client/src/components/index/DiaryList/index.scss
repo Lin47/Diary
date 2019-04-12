@@ -1,0 +1,32 @@
+.project-container {
+  margin: 0 40px;
+  margin-top: 10px;
+  margin-bottom: 200px;
+}
+
+.project-container > .count {
+  color: #555;
+  font-weight: bold;
+  font-size: 28px;
+}
+
+.project-container > .count > .num {
+  display: inline-block;
+  margin: 0 4px;
+  color: #1976d2;
+  font-weight: bolder;
+  font-size: 32px;
+}
+
+.project {
+  margin: 24px 0;
+  padding: 24px;
+  border-radius: 18px;
+  background-color: #fff;
+  box-shadow: 0 6px 24px rgba(25, 118, 210, 0.08);
+}
+
+.project > .title {
+  font-weight: bold;
+  font-size: 32px;
+}

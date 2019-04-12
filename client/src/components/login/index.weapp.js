@@ -1,6 +1,7 @@
 import Taro, { Component } from "@tarojs/taro"
 import { View, Text, Button } from "@tarojs/components"
 
+
 export default class Login extends Component {
   state = {
     context: {}
@@ -23,6 +24,7 @@ export default class Login extends Component {
         data: {}
       })
       .then(res => {
+        console.log(res)
         this.setState({
           context: res.result.userInfo
         })
