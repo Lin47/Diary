@@ -1,5 +1,4 @@
 import Taro, { Component } from '@tarojs/taro'
-// import 'taro-ui/dist/style/index.scss'
 import Index from './pages/index'
 
 import './app.scss'
@@ -16,7 +15,6 @@ class App extends Component {
   config = {
     pages: [
       'pages/index/index',
-      'pages/setting/index',
       'pages/write/index',
       'pages/password/index',
       'pages/detail/index',
@@ -25,9 +23,10 @@ class App extends Component {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      navigationBarTextStyle: 'black',
+      onReachBottomDistance: 20
     },
-    cloud: true
+    cloud: true,
   }
 
   componentDidMount () {

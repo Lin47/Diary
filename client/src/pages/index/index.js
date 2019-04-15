@@ -1,5 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
+import { AtActivityIndicator, AtDrawer, AtListItem } from 'taro-ui'
 
 import Authorize from '../../components/index/Authorize'
 import DiaryList from '../../components/index/DiaryList'
@@ -13,9 +14,18 @@ export default class Index extends Component {
   config = {
     navigationBarTitleText: '首页'
   }
+  constructor () {
+    super(...arguments)
+    this.state = {
+      userInfo: null,
+      isLoading: true,
+      diaryList: null, 
+      showDrawer: false
+    }
 
-  state = {
-    userInfo: null,
+    this.onAuthorize = this.onAuthorize.bind(this)
+    this.onOpenDrawer = this.onOpenDrawer.bind(this)
+    this.onCloseDrawer = this.onCloseDrawer.bind(this)
   }
 
   componentWillMount () { 
@@ -29,6 +39,10 @@ export default class Index extends Component {
   componentDidShow () { }
 
   componentDidHide () { }
+  
+  onReachBottom () {
+    console.log('to the bottom')
+  }
 
   onGetUserInfo() {
     IndexModel.getUserInfo().then(res => {
@@ -37,6 +51,13 @@ export default class Index extends Component {
         userInfo
       })
     })
+    IndexModel.getDiaryList()
+      .then(res => {
+        this.setState({
+          diaryList: res.data,
+          isLoading: false
+        })
+      })
   }
 
   onAuthorize ({detail: { userInfo }}) {
@@ -47,7 +68,7 @@ export default class Index extends Component {
     }
   }
 
-  onGoSetting () {
+  onOpenDrawer () {
     const { userInfo } = this.state
     if (!userInfo) {
       Taro.showToast({
@@ -56,26 +77,71 @@ export default class Index extends Component {
       })
       return
     }
+    this.setState({
+      showDrawer: true
+    })
+  }
+
+  onGoWrite () {
     Taro.navigateTo({
-      url: '/pages/setting/index'
+      url: '/pages/write/index'
+    })
+  }
+
+  onGoPassword () {
+    Taro.navigateTo({
+      url: '/pages/password/index'
+    })
+  }
+
+  onCloseDrawer () {
+    this.setState({
+      showDrawer: false
     })
   }
 
   render () {
-    const { userInfo } = this.state
+    const { userInfo, isLoading, diaryList, showDrawer } = this.state
     return (
       <View className='index'>
         {/* 用户信息 */}
         <Authorize 
           userInfo={userInfo}
-          onAuthorize={this.onAuthorize.bind(this)}
+          onAuthorize={this.onAuthorize}
         />
-
         {/* 日记信息 */}
-        <DiaryList />
-      
+        {
+          isLoading
+          ? <AtActivityIndicator mode='center' />
+          : <DiaryList diaryList={diaryList} />
+        }
         {/* 悬浮按钮 */}
-        <Fab onClick={this.onGoSetting.bind(this)} />
+        <Fab onClick={this.onOpenDrawer} />
+
+        <AtDrawer
+          show={showDrawer}
+          mask
+          right
+          onClose={this.onCloseDrawer} 
+        >
+          <AtListItem 
+            title='日记' 
+            arrow='right' 
+            iconInfo={{ size: 25, color: '#78A4FA', value: 'edit', }}
+            onClick={this.onGoWrite}
+          />
+          <AtListItem 
+            title='密码' 
+            arrow='right' 
+            iconInfo={{ size: 25, color: '#78A4FA', value: 'lock', }}
+            onClick={this.onGoPassword}
+          />
+          <AtListItem 
+            title='反馈' 
+            arrow='right'
+            iconInfo={{ size: 25, color: '#78A4FA', value: 'help', }}
+          />
+        </AtDrawer>
       </View>
     )
   }

@@ -2,6 +2,8 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtInput, AtForm, AtButton } from 'taro-ui'
 
+import { onShowToast } from '../../utils/common'
+
 import './index.scss'
 
 export default class Password extends Component {
@@ -37,7 +39,6 @@ export default class Password extends Component {
     this.setState({
       oldPassword
     })
-    // 在小程序中，如果想改变 value 的值，需要 `return value` 从而改变输入框的当前值
     return oldPassword
   }
 
@@ -45,7 +46,6 @@ export default class Password extends Component {
     this.setState({
       newPassword
     })
-    // 在小程序中，如果想改变 value 的值，需要 `return value` 从而改变输入框的当前值
     return newPassword
   }
 
@@ -53,12 +53,37 @@ export default class Password extends Component {
     this.setState({
       repeartPassword
     })
-    // 在小程序中，如果想改变 value 的值，需要 `return value` 从而改变输入框的当前值
     return repeartPassword
   }
 
-  onSubmit (event) {
-    console.log(event)
+  onSubmit () {
+    const { oldPassword, newPassword, repeartPassword } = this.state
+    if (!this.onValidate(oldPassword, newPassword, repeartPassword)) return 
+    
+  }
+
+  onValidate(oldPassword, newPassword, repeartPassword) {
+    if (oldPassword === '') {
+      onShowToast('旧密码不可为空', false)
+      return false
+    } 
+    if (newPassword === '') {
+      onShowToast('新密码不可为空', false)
+      return false
+    } 
+    if (repeartPassword === '') {
+      onShowToast('重复密码不可为空', false)
+      return false
+    } 
+    if (newPassword !== repeartPassword) {
+      onShowToast('新密码与重复密码不一致', false)
+      return false
+    }
+    if (newPassword !== oldPassword) {
+      onShowToast('新密码不可以与老密码相同', false)
+      return false
+    }
+    return true
   }
 
   render () {

@@ -1,5 +1,7 @@
 import Taro from '@tarojs/taro'
 
+const db = Taro.cloud.database()
+
 export default class IndexModel {
   static getUserInfo () {
     return new Promise((resolve, reject) => {
@@ -12,5 +14,8 @@ export default class IndexModel {
         })
         .catch(err => { reject(err) } )
     })
+  }
+  static getDiaryList () {
+    return db.collection('diarys').get()
   }
 }

@@ -1,5 +1,5 @@
 import Taro, { Component } from "@tarojs/taro"
-import { AtAvatar  } from 'taro-ui'
+import { AtAvatar } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
 
 import './index.scss'
@@ -22,12 +22,11 @@ export default class Authorize extends Component {
               className='authorize'
               openType='getUserInfo'
               onGetuserinfo={onAuthorize}
-              // onClick={onAuthorize}
             >
-                授权登录
-              </Button>
+              授权登录
+            </Button>
           }
-          <View class='statistics'>你的日记总数为</View>
+          <View class='statistics'>yoyoyo</View>
         </View>
       </View>
     )

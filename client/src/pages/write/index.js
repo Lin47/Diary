@@ -2,6 +2,9 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtInput, AtForm, AtSwitch, AtTextarea, AtImagePicker, AtButton  } from 'taro-ui'
 
+import { onShowToast } from '../../utils/common'
+import WriteModel from '../../models/write'
+
 import './index.scss'
 
 export default class Write extends Component {
@@ -13,17 +16,17 @@ export default class Write extends Component {
   constructor () {
     super(...arguments)
     this.state = {
-      files: [{
-        url: 'https://jimczj.gitee.io/lazyrepay/aragaki1.jpeg',
-      },
-      {
-        url: 'https://jimczj.gitee.io/lazyrepay/aragaki2.jpeg',
-      },
-      {
-        url: 'https://jimczj.gitee.io/lazyrepay/aragaki3.png',
-      }],
-      value: ''
+      title: '',
+      isLock: false,
+      content: '',
+      files: [],
     }
+
+    this.handleChangeText = this.handleChangeText.bind(this)
+    this.handleChangeClock = this.handleChangeClock.bind(this)
+    this.handleChangeTextArea = this.handleChangeTextArea.bind(this)
+    this.onChangeImg = this.onChangeImg.bind(this)
+    this.onSubmit = this.onSubmit.bind(this)
   }
 
   componentWillMount () { }
@@ -36,42 +39,109 @@ export default class Write extends Component {
 
   componentDidHide () { }
 
-  handleChange (event) {
+  handleChangeText (title) {
     this.setState({
-      value: event.target.value
+      title
+    })
+    return title
+  }
+
+  handleChangeClock (isLock) {
+    this.setState({
+      isLock
     })
   }
 
-  onChange (files) {
+  handleChangeTextArea ({target: { value }}) {
+    this.setState({
+      content: value
+    })
+    return value
+  }
+  
+  onChangeImg (files) {
+    console.log(files)
+    Taro.cloud.uploadFile({
+      cloudPath: 'example.png',
+      filePath: '', // 文件路径
+    }).then(res => {
+      console.log(res)
+    }).catch(error => {
+      console.error(error)
+    })
     this.setState({
       files
     })
   }
 
+  onSubmit () {
+    const { title, isLock, content, files } = this.state
+    if (!this.onValidate(title, content)) return
+    Taro.showLoading({
+      title: 'loading'
+    })
+    const data = {
+      title,
+      isLock,
+      content,
+      files,
+      createDate: new Date()
+    }
+    WriteModel.addDiary(data)
+      .then(() => {
+        Taro.hideLoading()
+        Taro.reLaunch({
+          url: '/pages/index/index'
+        })
+        .then(() => {
+          onShowToast('写好啦！', true)
+        })
+      })
+  }
+
+  onValidate (title, content) {
+    if (title === '') {
+      onShowToast('标题不可为空', false)
+      return false 
+    } 
+    if (content === '') {
+      onShowToast('日记正文不可为空', false)
+      return false 
+    }
+    return true
+  }
+
   render () {
     return (
       <View className='write'>
-        <AtForm className='write-from'>
+        <AtForm
+          className='write-from'
+          onSubmit={this.onSubmit}
+        >
           <AtInput
-            name='value1'
+            name='title'
             title='标题'
             type='text'
-            placeholder='输入标题'
-            value={this.state.value1}
-            onChange={this.handleChange.bind(this)}
+            placeholder='日记标题...'
+            value={this.state.title}
+            onChange={this.handleChangeText}
           />
-          <AtSwitch title='是否加密' checked={this.state.value} onChange={this.handleChange} />
+          <AtSwitch
+            title='是否加密'
+            checked={this.state.isLock}
+            onChange={this.handleChangeClock} 
+          />
           <AtTextarea
-            value={this.state.value}
-            onChange={this.handleChange.bind(this)}
+            value={this.state.content}
+            onChange={this.handleChangeTextArea}
             maxLength={1500}
-            placeholder='你的问题是...'
+            placeholder='日记正文...'
             height={450}
             className='write-textarea'
           />
           <AtImagePicker
             files={this.state.files}
-            onChange={this.onChange.bind(this)}
+            onChange={this.onChangeImg}
           />
           <AtButton
             formType='submit' 
