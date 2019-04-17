@@ -15,7 +15,21 @@ export default class IndexModel {
         .catch(err => { reject(err) } )
     })
   }
-  static getDiaryList () {
-    return db.collection('diarys').get()
+  static getDiaryList (currPage) {
+    return Taro.cloud.callFunction({
+      name: 'SearchDiary',
+      data: { currPage }
+    })
+  }
+  static getPasswordConfirm (password) {
+    return Taro.cloud.callFunction({
+      name: 'ContrastPassword',
+      data: { password }
+    })
+  }
+  static getPassword () {
+    return Taro.cloud.callFunction({
+      name: 'SearchPassword',
+    })
   }
 }

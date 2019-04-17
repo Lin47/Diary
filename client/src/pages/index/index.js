@@ -1,10 +1,14 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtActivityIndicator, AtDrawer, AtListItem } from 'taro-ui'
+import { AtActivityIndicator } from 'taro-ui'
 
+import { onShowToast } from '../../utils/common'
 import Authorize from '../../components/index/Authorize'
 import DiaryList from '../../components/index/DiaryList'
 import Fab from '../../components/index/Fab'
+import Tips from '../../components/index/Tips'
+import Drawer from '../../components/index/Drawer'
+import PasswordModel from '../../components/index/PasswordModel'
 import IndexModel from '../../models/index'
 
 import './index.scss'
@@ -20,12 +24,24 @@ export default class Index extends Component {
       userInfo: null,
       isLoading: true,
       diaryList: null, 
-      showDrawer: false
+      showDrawer: false,
+      loadMore: 'more',
+      currPage: 1,
+      noDiary: false,
+      password: '',
+      showModel: false,
+      isPasswordLock: true,
+      havaPassword: false,
     }
 
     this.onAuthorize = this.onAuthorize.bind(this)
     this.onOpenDrawer = this.onOpenDrawer.bind(this)
     this.onCloseDrawer = this.onCloseDrawer.bind(this)
+    this.onLoadMore = this.onLoadMore.bind(this)
+    this.onChangePassword = this.onChangePassword.bind(this)
+    this.onCloseModel = this.onCloseModel.bind(this)
+    this.onConfirmModel = this.onConfirmModel.bind(this)
+    this.onOpenPasswordModel = this.onOpenPasswordModel.bind(this) 
   }
 
   componentWillMount () { 
@@ -40,21 +56,66 @@ export default class Index extends Component {
 
   componentDidHide () { }
   
-  onReachBottom () {
-    console.log('to the bottom')
+  onLoadMore () {
+    this.setState((prevState) => ({ 
+      currPage: prevState.currPage + 1,
+      loadMore: 'loading'
+    }), () => {
+      const { currPage } = this.state
+      IndexModel.getDiaryList(currPage)
+      .then(res => {
+        const { result: { data } } = res
+        if (data.length === 0) {
+          this.setState({
+            loadMore: 'noMore'
+          })
+          return
+        }
+        const { diaryList } = this.state
+        const newList = Object.assign([], diaryList)
+        data.map((values) => {
+          newList.push(values)
+        })
+        this.setState({
+          diaryList: newList,
+          loadMore: 'more',
+        })
+      })
+    })
   }
 
   onGetUserInfo() {
-    IndexModel.getUserInfo().then(res => {
-      const { userInfo } = res
-      this.setState({
-        userInfo
-      })
-    })
-    IndexModel.getDiaryList()
+    const { currPage } = this.state
+    IndexModel.getUserInfo()
       .then(res => {
+        const { userInfo } = res
         this.setState({
-          diaryList: res.data,
+          userInfo
+        })
+      })
+    IndexModel.getPassword()
+      .then(res => {
+        const { result: { total } } = res
+        let havaPassword = true
+        if (total === 0) {
+          havaPassword = false
+        }
+        this.setState({
+          havaPassword
+        })
+      })
+    IndexModel.getDiaryList(currPage)
+      .then(res => {
+        const { result:{ data } } = res
+        if (data.length === 0) {
+          this.setState({
+            noDiary: true,
+            isLoading: false
+          })
+          return
+        }
+        this.setState({
+          diaryList: data,
           isLoading: false
         })
       })
@@ -89,8 +150,9 @@ export default class Index extends Component {
   }
 
   onGoPassword () {
+    const { havaPassword } = this.state
     Taro.navigateTo({
-      url: '/pages/password/index'
+      url: `/pages/password/index?havaPassword=${havaPassword}`
     })
   }
 
@@ -100,8 +162,61 @@ export default class Index extends Component {
     })
   }
 
+  onChangePassword (password) {
+    this.setState({
+      password
+    })
+    return password
+  }
+
+  onOpenPasswordModel () {
+    const { isPasswordLock } = this.state
+    if (!isPasswordLock) return
+    this.setState({
+      showModel: true
+    }) 
+  }
+
+  onCloseModel () {
+    this.setState({
+      showModel: false
+    }) 
+  }
+
+  onConfirmModel () { 
+    const { password } = this.state
+    if (password.length === 0) return
+    Taro.showLoading()
+    IndexModel.getPasswordConfirm(password)
+      .then(res => {
+        const { result: { total } } = res
+        Taro.hideLoading()
+        if (total === 0) {
+          onShowToast('密码错误!', false)
+        } else {
+          this.setState({
+            isPasswordLock: false,
+            showModel: false
+          }, () => {
+            onShowToast('密码正确！', true)
+          })
+        }
+      })
+      .catch(err => console.error(err))
+  }
+
   render () {
-    const { userInfo, isLoading, diaryList, showDrawer } = this.state
+    const { 
+      userInfo, 
+      isLoading, 
+      diaryList, 
+      showDrawer, 
+      loadMore, 
+      noDiary, 
+      password, 
+      showModel, 
+      isPasswordLock
+     } = this.state
     return (
       <View className='index'>
         {/* 用户信息 */}
@@ -113,35 +228,35 @@ export default class Index extends Component {
         {
           isLoading
           ? <AtActivityIndicator mode='center' />
-          : <DiaryList diaryList={diaryList} />
+          : noDiary 
+            ? <Tips />
+            : <DiaryList
+              diaryList={diaryList}
+              loadMore={loadMore}
+              isPasswordLock={isPasswordLock}
+              onOpenPasswordModel={this.onOpenPasswordModel}
+              onLoadMore={this.onLoadMore}
+            />
         }
         {/* 悬浮按钮 */}
         <Fab onClick={this.onOpenDrawer} />
+        {/* 抽屉 */}
 
-        <AtDrawer
-          show={showDrawer}
-          mask
-          right
-          onClose={this.onCloseDrawer} 
-        >
-          <AtListItem 
-            title='日记' 
-            arrow='right' 
-            iconInfo={{ size: 25, color: '#78A4FA', value: 'edit', }}
-            onClick={this.onGoWrite}
-          />
-          <AtListItem 
-            title='密码' 
-            arrow='right' 
-            iconInfo={{ size: 25, color: '#78A4FA', value: 'lock', }}
-            onClick={this.onGoPassword}
-          />
-          <AtListItem 
-            title='反馈' 
-            arrow='right'
-            iconInfo={{ size: 25, color: '#78A4FA', value: 'help', }}
-          />
-        </AtDrawer>
+        <Drawer 
+          showDrawer={showDrawer}
+          onCloseDrawer={this.onCloseDrawer} 
+          onGoWrite={this.onGoWrite}
+          onGoPassword={this.onGoPassword}
+        />
+        
+        {/* 密码框 */}
+        <PasswordModel 
+          showModel={showModel}
+          password={password}
+          onChangePassword={this.onChangePassword}
+          onCloseModel={this.onCloseModel}
+          onConfirmModel={this.onConfirmModel}
+        />
       </View>
     )
   }

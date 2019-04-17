@@ -4,6 +4,9 @@ import { Swiper, SwiperItem, Image } from '@tarojs/components'
 import './index.scss'
 
 export default class DetailSwiper extends Component {
+  defaultProps = {
+    imgList: []
+  }
   render () {
     const { imgList } = this.props
     return (
@@ -16,7 +19,7 @@ export default class DetailSwiper extends Component {
         autoplay
       > 
         {
-          imgList.map((values) => {
+          (imgList || []).map((values) => {
             const { url } = values
             return (
               <SwiperItem key={url}>

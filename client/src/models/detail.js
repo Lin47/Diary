@@ -11,7 +11,7 @@ export default class DetailModel {
   }
   static delDetail (id) {
     return Taro.cloud.callFunction({
-      name: 'delDetail',
+      name: 'DeleteDiary',
       data: { id }
     })
   }

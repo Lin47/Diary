@@ -1,12 +1,11 @@
 .project-container {
   margin: 0 40px;
   margin-top: 10px;
-  margin-bottom: 200px;
 }
 
 .project-container > .count {
   color: #555;
-  font-weight: bold;
+  font-weight: 200;
   font-size: 28px;
 }
 
@@ -27,8 +26,9 @@
 }
 
 .project > .title {
-  font-weight: bold;
+  font-weight: 200;
   font-size: 32px;
+  color: #333;
 }
 
 .project > .tag-icon{

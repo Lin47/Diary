@@ -5,6 +5,9 @@ import { View, Button } from '@tarojs/components'
 import './index.scss'
 
 export default class Authorize extends Component {
+  defaultProps = {
+    userInfo: {}
+  }
   render () {
     const { userInfo, onAuthorize } = this.props
     return (

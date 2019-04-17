@@ -59,16 +59,17 @@ export default class Write extends Component {
     return value
   }
   
-  onChangeImg (files) {
-    console.log(files)
-    Taro.cloud.uploadFile({
-      cloudPath: 'example.png',
-      filePath: '', // 文件路径
-    }).then(res => {
-      console.log(res)
-    }).catch(error => {
-      console.error(error)
-    })
+  onChangeImg (files, operationType, index) {
+    console.log(files, operationType, index)
+    // const name = Math.random() * 1000000;
+    // const cloudPath = name + files[0].url.match(/\.[^.]+?$/)[0]
+    // Taro.cloud.uploadFile({
+    //   cloudPath,
+    //   filePath: files[0].url, // 文件路径
+    // })
+    // .then((res) => {
+    //   console.log(res)
+    // })
     this.setState({
       files
     })
@@ -99,6 +100,23 @@ export default class Write extends Component {
       })
   }
 
+  onUploadFile () {
+    const { files } = this.state
+    return Promise.all(files.map((values) => {
+      return new Promise((resolve, reject) => {
+        const { url } = values
+        const name = Math.random() * 1000000;
+        const cloudPath = name + url.match(/\.[^.]+?$/)[0]
+        Taro.cloud.uploadFile({
+          cloudPath,
+          filePath: url
+        })
+        .then(res => resolve(res))
+        .catch(err => reject(err))
+      })
+    }))
+  }
+
   onValidate (title, content) {
     if (title === '') {
       onShowToast('标题不可为空', false)
@@ -112,6 +130,7 @@ export default class Write extends Component {
   }
 
   render () {
+    const { title, isLock, content, files } = this.state
     return (
       <View className='write'>
         <AtForm
@@ -123,16 +142,16 @@ export default class Write extends Component {
             title='标题'
             type='text'
             placeholder='日记标题...'
-            value={this.state.title}
+            value={title}
             onChange={this.handleChangeText}
           />
           <AtSwitch
             title='是否加密'
-            checked={this.state.isLock}
+            checked={isLock}
             onChange={this.handleChangeClock} 
           />
           <AtTextarea
-            value={this.state.content}
+            value={content}
             onChange={this.handleChangeTextArea}
             maxLength={1500}
             placeholder='日记正文...'
@@ -140,8 +159,9 @@ export default class Write extends Component {
             className='write-textarea'
           />
           <AtImagePicker
-            files={this.state.files}
+            files={files}
             onChange={this.onChangeImg}
+            multiple={false}
           />
           <AtButton
             formType='submit' 
