@@ -16,7 +16,7 @@ export default class DiaryList extends Component {
   onGotoDetail (id, isLock) {
     const { isPasswordLock, onOpenPasswordModel } = this.props
     if (isLock && isPasswordLock) {
-      onOpenPasswordModel()
+      onOpenPasswordModel(id)
       return 
     }
     Taro.navigateTo({
@@ -30,9 +30,10 @@ export default class DiaryList extends Component {
       <View>
         <View className='project-container'>
           <View className='count'>
-            你有
+            {/* 你有
             <View className='num'>{diaryList.length}</View>
-            条日记:
+            条日记: */}
+            天知道我们会发现什么样的大秘密？
           </View>
           {
             (diaryList || []).map((values) => {

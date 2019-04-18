@@ -22,7 +22,7 @@ export default class Detail extends Component {
   }
 
   componentWillMount () { 
-    const id = this.$router.params.id
+    const { id } = this.$router.params
     DetailModel.getDetail(id)
       .then(res => {
         this.setState({
@@ -54,6 +54,7 @@ export default class Detail extends Component {
         })
         DetailModel.delDetail(this.state.id)
           .then(() => {
+            this.onDeleteFile()
             Taro.hideLoading()
             Taro.reLaunch({
               url: '/pages/index/index'
@@ -66,8 +67,43 @@ export default class Detail extends Component {
     })
   }
 
+  onModifyDiary (id) {
+    Taro.navigateTo({
+      url: `/pages/write/index?id=${id}`
+    })
+  }
+
+  onPreview(current) {
+    const urls = []
+    const { files } = this.state.detail
+    files.map((values => {
+      const { url } = values 
+      urls.push(url)
+    }))
+    Taro.previewImage({
+      current,
+      urls
+    })
+  }
+
+  onDeleteFile () {
+    return new Promise((resolve, reject) => {
+      const { files } = this.state.detail
+      const delFiles = []
+      files.map((values => {
+        const { url } = values 
+        delFiles.push(url)
+      }))
+      Taro.cloud.deleteFile({
+        fileList: delFiles
+      })
+      .then(res => resolve(res))
+      .catch(err => reject(err))
+    })
+  }
+
   render () {
-    const { isLoading, detail } = this.state
+    const { isLoading, detail, id } = this.state
     return (
       <View className='detail'>
       {
@@ -83,6 +119,7 @@ export default class Detail extends Component {
                   value='edit' 
                   size='25' 
                   color='#333' 
+                  onClick={this.onModifyDiary.bind(this, id)}
                 />
                 <AtIcon
                   value='trash' 
@@ -94,7 +131,8 @@ export default class Detail extends Component {
             </AtCard>
             { detail.files.length !== 0
               ? <DetailSwiper 
-                imgList={detail.files} 
+                imgList={detail.files}
+                onPreview={this.onPreview.bind(this)}
               />
               : ''
             }

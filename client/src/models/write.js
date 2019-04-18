@@ -8,4 +8,10 @@ export default class WriteModel {
       data
     })
   }
+  static modifyDiary (data) {
+    return Taro.cloud.callFunction({
+      name: 'ModifyDiary',
+      data
+    })
+  }
 }

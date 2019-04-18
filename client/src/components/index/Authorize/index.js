@@ -29,7 +29,7 @@ export default class Authorize extends Component {
               授权登录
             </Button>
           }
-          <View class='statistics'>yoyoyo</View>
+          <View class='statistics'>哇，金色传说！</View>
         </View>
       </View>
     )

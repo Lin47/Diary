@@ -16,7 +16,7 @@ import './index.scss'
 export default class Index extends Component {
   
   config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: '快来写日记吧！'
   }
   constructor () {
     super(...arguments)
@@ -32,6 +32,7 @@ export default class Index extends Component {
       showModel: false,
       isPasswordLock: true,
       havaPassword: false,
+      openDetailId: ''
     }
 
     this.onAuthorize = this.onAuthorize.bind(this)
@@ -169,12 +170,13 @@ export default class Index extends Component {
     return password
   }
 
-  onOpenPasswordModel () {
+  onOpenPasswordModel (id) {
     const { isPasswordLock } = this.state
     if (!isPasswordLock) return
     this.setState({
-      showModel: true
-    }) 
+      showModel: true,
+      openDetailId: id
+    })
   }
 
   onCloseModel () {
@@ -184,7 +186,7 @@ export default class Index extends Component {
   }
 
   onConfirmModel () { 
-    const { password } = this.state
+    const { password, openDetailId } = this.state
     if (password.length === 0) return
     Taro.showLoading()
     IndexModel.getPasswordConfirm(password)
@@ -199,6 +201,9 @@ export default class Index extends Component {
             showModel: false
           }, () => {
             onShowToast('密码正确！', true)
+            Taro.navigateTo({
+              url: `/pages/detail/index?id=${openDetailId}`
+            })
           })
         }
       })

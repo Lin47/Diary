@@ -26,11 +26,11 @@ export default class Drawer extends Component {
             iconInfo={{ size: 25, color: '#78A4FA', value: 'lock', }}
             onClick={onGoPassword}
           />
-          <AtListItem 
+          {/* <AtListItem 
             title='反馈' 
             arrow='right'
             iconInfo={{ size: 25, color: '#78A4FA', value: 'help', }}
-          />
+          /> */}
         </AtDrawer>
     )
   }

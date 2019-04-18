@@ -8,7 +8,7 @@ export default class DetailSwiper extends Component {
     imgList: []
   }
   render () {
-    const { imgList } = this.props
+    const { imgList, onPreview } = this.props
     return (
       <Swiper
         className='detail-swiper'
@@ -27,6 +27,7 @@ export default class DetailSwiper extends Component {
                   src={url}
                   mode='aspectFit'
                   className='swiper-img'
+                  onClick={() => {onPreview(url)}}
                 />
               </SwiperItem>
             )

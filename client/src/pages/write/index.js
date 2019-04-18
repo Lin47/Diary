@@ -4,13 +4,14 @@ import { AtInput, AtForm, AtSwitch, AtTextarea, AtImagePicker, AtButton  } from 
 
 import { onShowToast } from '../../utils/common'
 import WriteModel from '../../models/write'
+import DetailModel from '../../models/detail'
 
 import './index.scss'
 
 export default class Write extends Component {
   
   config = {
-    navigationBarTitleText: '写日记'
+    navigationBarTitleText: '日记'
   }
 
   constructor () {
@@ -20,6 +21,7 @@ export default class Write extends Component {
       isLock: false,
       content: '',
       files: [],
+      diaryID: null,
     }
 
     this.handleChangeText = this.handleChangeText.bind(this)
@@ -29,7 +31,26 @@ export default class Write extends Component {
     this.onSubmit = this.onSubmit.bind(this)
   }
 
-  componentWillMount () { }
+  componentWillMount () {
+    const id = this.$router.params.id
+    if (id) {
+      Taro.showLoading()
+      DetailModel.getDetail(id)
+      .then(res => {
+        const { data } = res
+        const { title, isLock, content, files } = data[0]
+        this.setState({
+          title,
+          isLock,
+          content,
+          files,
+          diaryID: id
+        }, () => {
+          Taro.hideLoading()
+        })
+      })
+    }
+  }
 
   componentDidMount () { }
 
@@ -59,62 +80,144 @@ export default class Write extends Component {
     return value
   }
   
-  onChangeImg (files, operationType, index) {
-    console.log(files, operationType, index)
-    // const name = Math.random() * 1000000;
-    // const cloudPath = name + files[0].url.match(/\.[^.]+?$/)[0]
-    // Taro.cloud.uploadFile({
-    //   cloudPath,
-    //   filePath: files[0].url, // 文件路径
-    // })
-    // .then((res) => {
-    //   console.log(res)
-    // })
-    this.setState({
-      files
+  onChangeImg (newfiles, operationType, index) {
+    const { files } = this.state
+    Taro.showLoading({
+      title: 'loading'
     })
+    if (operationType === 'add') {
+      const imageUrl = newfiles[newfiles.length - 1].url
+      this.onUploadFile(imageUrl)
+        .then(res => {
+          const { statusCode, fileID } = res
+          if(statusCode === 200) {
+            const newFiles = files.concat({
+              url:fileID
+            })
+            this.setState({
+              files: newFiles
+            })
+            Taro.hideLoading()
+            onShowToast('图片上传成功', true)
+          } else {
+            Taro.hideLoading()
+            onShowToast('图片上传失败', false)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          Taro.hideLoading()
+          onShowToast('图片上传失败', false)
+        })
+    } else if (operationType === 'remove') {
+      const imageUrl = files[index].url
+      this.onDeleteFile(imageUrl)
+        .then(res => {
+          console.log(res)
+          const { fileList } = res
+          const { status } = fileList[0]
+          if (status === 0) {
+            const newFiles = files.concat()
+            newFiles.splice(index, 1)
+            this.setState({
+              files: newFiles
+            })
+            Taro.hideLoading()
+            onShowToast('图片删除成功', true)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          Taro.hideLoading()
+          onShowToast('图片删除失败', false)
+        })
+    }
   }
 
   onSubmit () {
-    const { title, isLock, content, files } = this.state
+    const { title, isLock, content, files, diaryID } = this.state
     if (!this.onValidate(title, content)) return
     Taro.showLoading({
       title: 'loading'
     })
-    const data = {
-      title,
-      isLock,
-      content,
-      files,
-      createDate: new Date()
-    }
-    WriteModel.addDiary(data)
-      .then(() => {
-        Taro.hideLoading()
-        Taro.reLaunch({
-          url: '/pages/index/index'
+    if (diaryID) {
+      const data = {
+        title,
+        isLock,
+        content,
+        files,
+        id: diaryID
+      }
+      WriteModel.modifyDiary(data)
+        .then((res) => {
+          console.log(res)
+          if (res.result.stats.updated === 1) {
+            Taro.hideLoading()
+            Taro.reLaunch({
+              url: '/pages/index/index'
+            })
+            .then(() => {
+              onShowToast('修改成功！', true)
+            })
+          } else if (res.result.stats.updated === 0) {
+            Taro.hideLoading()
+            onShowToast('修改失败！', false)
+          }
         })
+        .catch(err => {
+          console.log(err)
+          Taro.hideLoading()
+          onShowToast('修改失败！', false)
+        })
+    } else {
+      const data = {
+        title,
+        isLock,
+        content,
+        files,
+        createDate: new Date()
+      }
+      WriteModel.addDiary(data)
         .then(() => {
-          onShowToast('写好啦！', true)
+          Taro.hideLoading()
+          Taro.reLaunch({
+            url: '/pages/index/index'
+          })
+          .then(() => {
+            onShowToast('写好啦！', true)
+          })
         })
-      })
+        .catch(err => {
+          console.log(err)
+          Taro.hideLoading()
+          onShowToast('修改失败！', false)
+        })
+    }
   }
 
-  onUploadFile () {
-    const { files } = this.state
-    return Promise.all(files.map((values) => {
-      return new Promise((resolve, reject) => {
-        const { url } = values
-        const name = Math.random() * 1000000;
-        const cloudPath = name + url.match(/\.[^.]+?$/)[0]
-        Taro.cloud.uploadFile({
-          cloudPath,
-          filePath: url
-        })
-        .then(res => resolve(res))
-        .catch(err => reject(err))
+  onUploadFile (url) {
+    return new Promise((resolve, reject) => {
+      const name = Math.random() * 1000000
+      const cloudPath = name + url.match(/\.[^.]+?$/)[0]
+      Taro.cloud.uploadFile({
+        cloudPath,
+        filePath: url
       })
-    }))
+      .then(res => resolve(res))
+      .catch(err => reject(err))
+    })
+  }
+
+  onDeleteFile (url) {
+    return new Promise((resolve, reject) => {
+      const fileIDs = Object.assign([], [url])
+      console.log(fileIDs)
+      Taro.cloud.deleteFile({
+        fileList: fileIDs
+      })
+      .then(res => resolve(res))
+      .catch(err => reject(err))
+    })
   }
 
   onValidate (title, content) {
@@ -129,6 +232,18 @@ export default class Write extends Component {
     return true
   }
 
+  onImageClick (index, file) {
+    const urls = []
+    this.state.files.map((values => {
+      const { url } = values 
+      urls.push(url)
+    })) 
+    Taro.previewImage({
+      current: file.url,
+      urls
+    })
+  }
+
   render () {
     const { title, isLock, content, files } = this.state
     return (
@@ -136,7 +251,7 @@ export default class Write extends Component {
         <AtForm
           className='write-from'
           onSubmit={this.onSubmit}
-        >
+        > 
           <AtInput
             name='title'
             title='标题'
@@ -162,6 +277,8 @@ export default class Write extends Component {
             files={files}
             onChange={this.onChangeImg}
             multiple={false}
+            onImageClick={this.onImageClick.bind(this)}
+            count={1}
           />
           <AtButton
             formType='submit' 

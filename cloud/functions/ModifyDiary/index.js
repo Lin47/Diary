@@ -1,18 +1,25 @@
-const cloud = require('wx-server-sdk')
+const cloud = require('./node_modules/wx-server-sdk')
 
 cloud.init()
 
 const db = cloud.database()
 
 exports.main = async (event, context) => {
-  const { id } = event
   const { OPENID } = cloud.getWXContext()
+  const { title, isLock, content, files, id } = event
   try {
     return await db.collection('diarys').where({
-      _id: id,
       _openid: OPENID,
+      _id: id
     })
-    .remove()
+    .update({
+      data: {
+        title, 
+        isLock, 
+        content, 
+        files
+      }
+    })
   } catch (e) {
     console.error(e)
   }

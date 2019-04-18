@@ -84,6 +84,9 @@ export default class Password extends Component {
             .then(() => {
               onShowToast('密码修改成功！', true)
             })
+          } else if (res.result.stats.updated === 0) {
+            Taro.hideLoading()
+            onShowToast('旧密码不正确！', false)
           }
         })
         .catch(err => {
