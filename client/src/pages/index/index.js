@@ -10,6 +10,7 @@ import Tips from '../../components/index/Tips'
 import Drawer from '../../components/index/Drawer'
 import PasswordModel from '../../components/index/PasswordModel'
 import IndexModel from '../../models/index'
+import Diary from '../../images/Diary.png'
 
 import './index.scss'
 
@@ -56,33 +57,13 @@ export default class Index extends Component {
   componentDidShow () { }
 
   componentDidHide () { }
-  
-  onLoadMore () {
-    this.setState((prevState) => ({ 
-      currPage: prevState.currPage + 1,
-      loadMore: 'loading'
-    }), () => {
-      const { currPage } = this.state
-      IndexModel.getDiaryList(currPage)
-      .then(res => {
-        const { result: { data } } = res
-        if (data.length === 0) {
-          this.setState({
-            loadMore: 'noMore'
-          })
-          return
-        }
-        const { diaryList } = this.state
-        const newList = Object.assign([], diaryList)
-        data.map((values) => {
-          newList.push(values)
-        })
-        this.setState({
-          diaryList: newList,
-          loadMore: 'more',
-        })
-      })
-    })
+
+  onShareAppMessage () {
+    return {
+      title: '懒懒日记',
+      path: 'pages/index/index',
+      imageUrl: Diary
+    }
   }
 
   onGetUserInfo() {
@@ -130,6 +111,34 @@ export default class Index extends Component {
     }
   }
 
+  onLoadMore () {
+    this.setState((prevState) => ({ 
+      currPage: prevState.currPage + 1,
+      loadMore: 'loading'
+    }), () => {
+      const { currPage } = this.state
+      IndexModel.getDiaryList(currPage)
+      .then(res => {
+        const { result: { data } } = res
+        if (data.length === 0) {
+          this.setState({
+            loadMore: 'noMore'
+          })
+          return
+        }
+        const { diaryList } = this.state
+        const newList = Object.assign([], diaryList)
+        data.map((values) => {
+          newList.push(values)
+        })
+        this.setState({
+          diaryList: newList,
+          loadMore: 'more',
+        })
+      })
+    })
+  }
+
   onOpenDrawer () {
     const { userInfo } = this.state
     if (!userInfo) {
@@ -145,7 +154,7 @@ export default class Index extends Component {
   }
 
   onGoWrite () {
-    Taro.navigateTo({
+    Taro.redirectTo({
       url: '/pages/write/index'
     })
   }

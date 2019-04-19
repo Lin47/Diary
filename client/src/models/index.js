@@ -1,7 +1,5 @@
 import Taro from '@tarojs/taro'
 
-const db = Taro.cloud.database()
-
 export default class IndexModel {
   static getUserInfo () {
     return new Promise((resolve, reject) => {

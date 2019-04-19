@@ -29,6 +29,8 @@ export default class Write extends Component {
     this.handleChangeTextArea = this.handleChangeTextArea.bind(this)
     this.onChangeImg = this.onChangeImg.bind(this)
     this.onSubmit = this.onSubmit.bind(this)
+    this.onImageClick = this.onImageClick.bind(this)
+    this.onSurrender = this.onSurrender.bind(this)
   }
 
   componentWillMount () {
@@ -134,6 +136,18 @@ export default class Write extends Component {
     }
   }
 
+  onImageClick (index, file) {
+    const urls = []
+    this.state.files.map((values => {
+      const { url } = values 
+      urls.push(url)
+    })) 
+    Taro.previewImage({
+      current: file.url,
+      urls
+    })
+  }
+
   onSubmit () {
     const { title, isLock, content, files, diaryID } = this.state
     if (!this.onValidate(title, content)) return
@@ -195,6 +209,21 @@ export default class Write extends Component {
     }
   }
 
+  onSurrender () {
+    Taro.showModal({
+      title: '警告',
+      content: '确定要放弃此次编辑的内容吗？'
+    })
+    .then(res => {
+      const { confirm } = res
+      if (confirm) {
+        Taro.redirectTo({
+          url: '/pages/index/index'
+        })
+      }
+    })
+  }
+
   onUploadFile (url) {
     return new Promise((resolve, reject) => {
       const name = Math.random() * 1000000
@@ -232,25 +261,30 @@ export default class Write extends Component {
     return true
   }
 
-  onImageClick (index, file) {
-    const urls = []
-    this.state.files.map((values => {
-      const { url } = values 
-      urls.push(url)
-    })) 
-    Taro.previewImage({
-      current: file.url,
-      urls
-    })
-  }
-
   render () {
     const { title, isLock, content, files } = this.state
     return (
       <View className='write'>
+        <View className='write-btn-group'>
+          <AtButton
+            className='write-btn'
+            size='small'
+            onClick={this.onSurrender}
+          >
+            放弃
+          </AtButton>
+          <AtButton
+            formType='submit' 
+            type='primary'
+            className='write-btn'
+            size='small'
+            onClick={this.onSubmit}
+          >
+            提交
+          </AtButton>
+        </View>
         <AtForm
           className='write-from'
-          onSubmit={this.onSubmit}
         > 
           <AtInput
             name='title'
@@ -277,16 +311,9 @@ export default class Write extends Component {
             files={files}
             onChange={this.onChangeImg}
             multiple={false}
-            onImageClick={this.onImageClick.bind(this)}
+            onImageClick={this.onImageClick}
             count={1}
           />
-          <AtButton
-            formType='submit' 
-            type='primary'
-            className='write-btn'
-          >
-            提交
-          </AtButton>
         </AtForm>
       </View>
     )

@@ -14,11 +14,17 @@ export default class Detail extends Component {
   config = {
     navigationBarTitleText: '我的日记'
   }
+  constructor () {
+    super(...arguments)
+    this.state = {
+      detail: {},
+      isLoading: true,
+      id: null,
+    }
 
-  state = {
-    detail: {},
-    isLoading: true,
-    id: null,
+    this.onModifyDiary = this.onModifyDiary.bind(this)
+    this.onDelDiary = this.onDelDiary.bind(this)
+    this.onPreview = this.onPreview.bind(this)
   }
 
   componentWillMount () { 
@@ -68,7 +74,7 @@ export default class Detail extends Component {
   }
 
   onModifyDiary (id) {
-    Taro.navigateTo({
+    Taro.reLaunch({
       url: `/pages/write/index?id=${id}`
     })
   }
@@ -119,20 +125,20 @@ export default class Detail extends Component {
                   value='edit' 
                   size='25' 
                   color='#333' 
-                  onClick={this.onModifyDiary.bind(this, id)}
+                  onClick={() => {this.onModifyDiary(id)}}
                 />
                 <AtIcon
                   value='trash' 
                   size='25' 
                   color='#F00'
-                  onClick={this.onDelDiary.bind(this)}
+                  onClick={this.onDelDiary}
                 />
               </View>
             </AtCard>
             { detail.files.length !== 0
               ? <DetailSwiper 
                 imgList={detail.files}
-                onPreview={this.onPreview.bind(this)}
+                onPreview={this.onPreview}
               />
               : ''
             }
