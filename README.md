@@ -1,9 +1,10 @@
 # Diary/懒懒的日记
----
+
 这是一个使用Taro + TaroUI + 云开发的微信小程序，
 开发的意图主要是用来熟练Taro以及云开发。
 
 ### 体验懒懒的日记
+![小程序二维码](https://github.com/Lin47/Diary/blob/feature/client/src/images/app.jpg)
 
 ### 功能
 + 编写日记
