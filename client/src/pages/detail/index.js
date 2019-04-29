@@ -12,7 +12,7 @@ import './index.scss'
 export default class Detail extends Component {
   
   config = {
-    navigationBarTitleText: '我的日记'
+    navigationBarTitleText: '快进来看看'
   }
   constructor () {
     super(...arguments)
@@ -50,7 +50,7 @@ export default class Detail extends Component {
   onDelDiary() {
     Taro.showModal({
       title: '警告',
-      content: '真的要删除这篇日记吗？'
+      content: '真的要删除吗？'
     })
     .then(res => {
       const { confirm } = res

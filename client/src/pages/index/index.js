@@ -17,7 +17,7 @@ import './index.scss'
 export default class Index extends Component {
   
   config = {
-    navigationBarTitleText: '快来写日记吧！'
+    navigationBarTitleText: '快进来看看'
   }
   constructor () {
     super(...arguments)
@@ -60,7 +60,7 @@ export default class Index extends Component {
 
   onShareAppMessage () {
     return {
-      title: '懒懒日记',
+      title: '懒懒的小程序',
       path: 'pages/index/index',
       imageUrl: Diary
     }
@@ -233,12 +233,10 @@ export default class Index extends Component {
      } = this.state
     return (
       <View className='index'>
-        {/* 用户信息 */}
         <Authorize 
           userInfo={userInfo}
           onAuthorize={this.onAuthorize}
         />
-        {/* 日记信息 */}
         {
           isLoading
           ? <AtActivityIndicator mode='center' />
@@ -255,7 +253,6 @@ export default class Index extends Component {
         {/* 悬浮按钮 */}
         <Fab onClick={this.onOpenDrawer} />
         {/* 抽屉 */}
-
         <Drawer 
           showDrawer={showDrawer}
           onCloseDrawer={this.onCloseDrawer} 

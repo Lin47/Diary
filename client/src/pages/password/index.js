@@ -10,7 +10,7 @@ import './index.scss'
 export default class Password extends Component {
   
   config = {
-    navigationBarTitleText: '密码'
+    navigationBarTitleText: '快进来看看'
   }
 
   constructor () {

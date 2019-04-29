@@ -15,7 +15,7 @@ export default class Drawer extends Component {
         onClose={onCloseDrawer}
       >
           <AtListItem 
-            title='日记' 
+            title='记录' 
             arrow='right' 
             iconInfo={{ size: 25, color: '#78A4FA', value: 'edit', }}
             onClick={onGoWrite}

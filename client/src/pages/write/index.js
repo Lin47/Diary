@@ -11,7 +11,7 @@ import './index.scss'
 export default class Write extends Component {
   
   config = {
-    navigationBarTitleText: '日记'
+    navigationBarTitleText: '快进来看看'
   }
 
   constructor () {
@@ -255,7 +255,7 @@ export default class Write extends Component {
       return false 
     } 
     if (content === '') {
-      onShowToast('日记正文不可为空', false)
+      onShowToast('正文不可为空', false)
       return false 
     }
     return true
@@ -290,7 +290,7 @@ export default class Write extends Component {
             name='title'
             title='标题'
             type='text'
-            placeholder='日记标题...'
+            placeholder='标题...'
             value={title}
             onChange={this.handleChangeText}
           />
@@ -303,7 +303,7 @@ export default class Write extends Component {
             value={content}
             onChange={this.handleChangeTextArea}
             maxLength={1500}
-            placeholder='日记正文...'
+            placeholder='正文...'
             height={450}
             className='write-textarea'
           />
